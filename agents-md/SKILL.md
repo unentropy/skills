@@ -46,17 +46,17 @@ Point to files instead of embedding everything. Let agents discover details when
 - **Language:** [e.g., TypeScript strict mode]
 
 ## Quick Commands
-\`\`\`bash
+```bash
 [dev command]     # [description]
 [build command]   # [description]
 [test command]    # [description]
 [lint command]    # [description]
-\`\`\`
+```
 
 ## Project Map
-\`\`\`
+```
 [directory tree with brief annotations]
-\`\`\`
+```
 
 ## Key Conventions
 - [Only non-obvious, universally-applicable conventions]
@@ -110,18 +110,6 @@ Point to files instead of embedding everything. Let agents discover details when
    - Stale/outdated info (REMOVE)
 4. Verify remaining content is universally applicable
 5. Ensure WHAT/WHY/HOW structure is clear
-
-## Anti-Patterns
-
-**Don't auto-generate blindly** - /init output needs human curation
-
-**Don't add hotfixes** - Appending behavioral fixes degrades overall performance
-
-**Don't use as a linter** - LLMs are expensive, slow linters. Use Biome/ESLint/Prettier
-
-**Don't embed code examples** - They become outdated. Use `file:line` references instead
-
-**Don't include task-specific instructions** - Move to separate markdown files and reference them
 
 ## Progressive Disclosure Pattern
 
