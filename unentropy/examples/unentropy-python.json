@@ -1,0 +1,36 @@
+{
+  "metrics": {
+    "lines-of-code": {
+      "$ref": "loc",
+      "name": "Source Code Lines",
+      "command": "@collect loc . --language Python"
+    },
+    "test-coverage": {
+      "$ref": "coverage",
+      "name": "Test Coverage",
+      "command": "@collect coverage-lcov ./coverage/lcov.info"
+    },
+    "dependency-count": {
+      "$ref": "dependencies-count",
+      "name": "Dependencies",
+      "command": "python3 -c \"import toml; print(len(toml.load('pyproject.toml')['project']['dependencies']))\""
+    }
+  },
+  "storage": {
+    "type": "sqlite-artifact"
+  },
+  "qualityGate": {
+    "mode": "soft",
+    "thresholds": [
+      {
+        "metric": "test-coverage",
+        "mode": "min",
+        "target": 80
+      },
+      {
+        "metric": "lines-of-code",
+        "mode": "no-regression"
+      }
+    ]
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "metrics": {
+    "lines-of-code": {
+      "$ref": "loc",
+      "name": "Source Code Lines",
+      "command": "@collect loc ./src --language PHP"
+    },
+    "test-coverage": {
+      "$ref": "coverage",
+      "name": "Test Coverage",
+      "command": "@collect coverage-cobertura ./coverage/coverage.xml"
+    }
+  },
+  "storage": {
+    "type": "sqlite-artifact"
+  },
+  "qualityGate": {
+    "mode": "soft",
+    "thresholds": [
+      {
+        "metric": "test-coverage",
+        "mode": "no-regression"
+      }
+    ]
+  }
+}

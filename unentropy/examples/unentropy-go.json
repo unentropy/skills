@@ -1,0 +1,26 @@
+{
+  "metrics": {
+    "lines-of-code": {
+      "$ref": "loc",
+      "name": "Source Code Lines",
+      "command": "@collect loc . --language Go"
+    },
+    "binary-size": {
+      "$ref": "size",
+      "name": "Binary Size",
+      "command": "@collect size ./bin/app"
+    }
+  },
+  "storage": {
+    "type": "sqlite-artifact"
+  },
+  "qualityGate": {
+    "mode": "soft",
+    "thresholds": [
+      {
+        "metric": "binary-size",
+        "mode": "no-regression"
+      }
+    ]
+  }
+}

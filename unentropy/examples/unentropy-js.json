@@ -1,0 +1,46 @@
+{
+  "metrics": {
+    "lines-of-code": {
+      "$ref": "loc",
+      "name": "Source Code Lines",
+      "command": "@collect loc ./src --language TypeScript"
+    },
+    "test-coverage": {
+      "$ref": "coverage",
+      "name": "Test Coverage",
+      "command": "@collect coverage-lcov ./coverage/lcov.info"
+    },
+    "bundle-size": {
+      "$ref": "size",
+      "name": "Production Bundle",
+      "command": "@collect size ./dist/**/*.js"
+    },
+    "dependency-count": {
+      "$ref": "dependencies-count",
+      "name": "Dependencies",
+      "command": "jq '.dependencies | length' package.json"
+    }
+  },
+  "storage": {
+    "type": "sqlite-artifact"
+  },
+  "qualityGate": {
+    "mode": "soft",
+    "thresholds": [
+      {
+        "metric": "test-coverage",
+        "mode": "min",
+        "target": 80
+      },
+      {
+        "metric": "bundle-size",
+        "mode": "max",
+        "target": 500000
+      },
+      {
+        "metric": "lines-of-code",
+        "mode": "no-regression"
+      }
+    ]
+  }
+}
