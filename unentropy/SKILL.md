@@ -83,6 +83,7 @@ Built-in collectors run in-process and are faster than shell commands:
 - `@collect loc <path> [--language <lang>]` — Count lines of code via SCC
 - `@collect size <path> [<path2> ...]` — Calculate total file size (supports globs)
 - `@collect coverage-lcov <path> [--type line|branch|function]` — Extract LCOV coverage
+- `@collect coverage-clover <paths...> [--type line|branch|function]` — Extract and merge Clover XML coverage
 - `@collect coverage-cobertura <paths...> [--type line|branch|function]` — Extract and merge Cobertura XML
 
 ### Define Custom Metrics
@@ -378,7 +379,7 @@ For detailed documentation, consult:
 Working `unentropy.json` files for different project types:
 
 - **`examples/unentropy-js.json`** — JavaScript/TypeScript (coverage, bundle size, LOC)
-- **`examples/unentropy-php.json`** — PHP (Cobertura coverage, LOC)
+- **`examples/unentropy-php.json`** — PHP (Clover coverage, LOC)
 - **`examples/unentropy-go.json`** — Go (LOC, binary size)
 - **`examples/unentropy-python.json`** — Python (coverage, LOC, dependency count)
 

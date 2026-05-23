@@ -8,7 +8,7 @@
     "test-coverage": {
       "$ref": "coverage",
       "name": "Test Coverage",
-      "command": "@collect coverage-cobertura ./coverage/coverage.xml"
+      "command": "@collect coverage-clover ./coverage/clover.xml"
     }
   },
   "storage": {

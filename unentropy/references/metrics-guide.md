@@ -24,18 +24,18 @@ The `command` property can be any shell command that outputs a single number to 
 
 ### Coverage Metrics
 
-Unentropy supports two coverage report formats.
+Unentropy supports three coverage report formats.
 
 #### Available Coverage Formats
 
-| | LCOV | Cobertura |
-|---|---|---|
-| **Collector** | `@collect coverage-lcov` | `@collect coverage-cobertura` |
-| **File format** | `.lcov` / `lcov.info` | `.xml` (Cobertura XML) |
-| **Typical tools** | Jest, Istanbul, nyc | PHPUnit, gcovr, OpenCppCoverage |
-| **Syntax** | `<path>` (single file) | `<paths...>` (single or multiple) |
-| **Multi-report merge** | Not supported | Supported |
-| **Coverage types** | `line`, `branch`, `function` | `line`, `branch`, `function` |
+| | LCOV | Cobertura | Clover |
+|---|---|---|---|
+| **Collector** | `@collect coverage-lcov` | `@collect coverage-cobertura` | `@collect coverage-clover` |
+| **File format** | `.lcov` / `lcov.info` | `.xml` (Cobertura XML) | `.xml` (Clover XML) |
+| **Typical tools** | Jest, Istanbul, nyc | PHPUnit, gcovr, OpenCppCoverage | PHPUnit, OpenClover |
+| **Syntax** | `<path>` (single file) | `<paths...>` (single or multiple) | `<paths...>` (single or multiple) |
+| **Multi-report merge** | Not supported | Supported | Supported |
+| **Coverage types** | `line`, `branch`, `function` | `line`, `branch`, `function` | `line`, `branch`, `function` |
 
 #### LCOV
 
@@ -87,7 +87,7 @@ Pass multiple paths to merge:
   "metrics": {
     "coverage": {
       "$ref": "coverage",
-      "command": "@collect coverage-cobertura ./coverage/report1.xml ./coverage/report2.xml"
+      "command": "@collect coverage-clover ./coverage/clover.xml"
     }
   }
 }
@@ -121,6 +121,66 @@ Also supports `--type branch` and `--type function`:
 ```
 
 The merge sums covered and valid counts across all reports, then recomputes the percentage — producing a correctly weighted combined rate.
+
+- **Unit**: Percent
+- **Note**: Requires coverage report generation before metric collection
+
+#### Clover
+
+Track coverage from Clover XML reports (PHPUnit `--coverage-clover`, OpenClover). Like Cobertura, Clover supports merging multiple reports.
+
+```json
+{
+  "metrics": {
+    "coverage": {
+      "$ref": "coverage",
+      "command": "@collect coverage-clover ./coverage/clover.xml"
+    }
+  }
+}
+```
+
+Pass multiple paths to merge:
+
+```json
+{
+  "metrics": {
+    "coverage": {
+      "$ref": "coverage",
+      "command": "@collect coverage-clover ./coverage/report1.xml ./coverage/report2.xml"
+    }
+  }
+}
+```
+
+Or use a glob for sharded output:
+
+```json
+{
+  "metrics": {
+    "coverage": {
+      "$ref": "coverage",
+      "command": "@collect coverage-clover ./coverage/*-clover.xml"
+    }
+  }
+}
+```
+
+Also supports `--type branch` and `--type function`:
+
+```json
+{
+  "metrics": {
+    "branch-coverage": {
+      "$ref": "coverage",
+      "name": "Branch Coverage",
+      "command": "@collect coverage-clover ./coverage/*-clover.xml --type branch"
+    }
+  }
+}
+```
+
+The merge uses per-file, per-line deduplication for line coverage (unions line numbers across reports so overlapping coverage isn't double-counted), and project-level summation for branch and function coverage.
 
 - **Unit**: Percent
 - **Note**: Requires coverage report generation before metric collection
@@ -363,6 +423,21 @@ Extract coverage from LCOV format:
 **Options**:
 
 - `--type <line|branch|function>` — Coverage type to extract (default: `line`)
+
+#### `@collect coverage-clover <paths...>`
+
+Extract and merge coverage from Clover XML format (PHPUnit `--coverage-clover`, OpenClover):
+
+```bash
+@collect coverage-clover ./coverage/clover.xml
+@collect coverage-clover ./coverage/report1.xml ./coverage/report2.xml
+@collect coverage-clover ./coverage/*-clover.xml --type branch
+```
+
+**Options**:
+
+- `--type <line|branch|function>` — Coverage type to extract (default: `line`)
+- Accepts multiple paths — line coverage uses per-file line deduplication; branch and function coverage use project-level summation
 
 #### `@collect coverage-cobertura <paths...>`
 
