@@ -42,5 +42,26 @@
         "mode": "no-regression"
       }
     ]
+  },
+  "report": {
+    "theme": "flux",
+    "mode": "auto",
+    "sections": [
+      {
+        "name": "Code Size",
+        "description": "Source and build metrics",
+        "charts": [
+          { "metrics": "lines-of-code", "title": "Lines of Code" },
+          { "metrics": "bundle-size", "title": "Production Bundle Size" }
+        ]
+      },
+      {
+        "name": "Dependencies & Quality",
+        "charts": [
+          { "metrics": "dependency-count" },
+          { "metrics": "test-coverage" }
+        ]
+      }
+    ]
   }
 }

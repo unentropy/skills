@@ -204,6 +204,19 @@ Quality Gate: ❌ Failed
 | Coverage | 87.5% | 79.2% | -8.3% | ❌ Failed (min: 80%) |
 ```
 
+## Programmatic Access
+
+In addition to PR comments, the quality gate action writes a complete JSON results file and exposes the data as a step output. This lets downstream workflow steps, automation tools, and AI agents consume evaluation results without parsing human-targeted text.
+
+The JSON output includes:
+
+- Timestamp and duration
+- Collection statistics
+- Full quality gate result with per-metric evaluations, baselines, deltas, and pass/fail status
+- PR comment URL
+
+See the [Actions Reference](actions-reference.md) for input/output details and workflow examples.
+
 ## Multiple Thresholds
 
 Configure thresholds for as many metrics as needed:

@@ -404,6 +404,17 @@ Maximum metrics to show in PR comment.
 max-pr-comment-metrics: 50
 ```
 
+#### `output-file`
+
+**Type**: string  
+**Default**: `.unentropy/quality-gate-results.json`
+
+Path to write the structured JSON results file (relative to workspace).
+
+```yaml
+output-file: reports/quality-gate.json
+```
+
 ### Outputs
 
 #### `quality-gate-status`
@@ -461,6 +472,32 @@ Number of baseline builds used for comparison.
 
 Reference branch used for baseline.
 
+#### `quality-gate-results-path`
+
+**Type**: string
+
+Absolute path to the written JSON results file.
+
+```yaml
+- name: Upload results
+  uses: actions/upload-artifact@v4
+  with:
+    name: quality-gate-results
+    path: ${{ steps.gate.outputs.quality-gate-results-path }}
+```
+
+#### `quality-gate-results-json`
+
+**Type**: string
+
+Full quality gate result as a JSON string. Usable with `fromJSON()` in workflow expressions.
+
+```yaml
+- name: Check failing metrics
+  run: |
+    echo "Failing: ${{ fromJSON(steps.gate.outputs.quality-gate-results-json).qualityGate.failingCount }}"
+```
+
 ### Examples
 
 #### Basic Quality Gate
@@ -517,6 +554,42 @@ jobs:
         with:
           storage-type: sqlite-artifact
           quality-gate-mode: hard
+```
+
+#### Consuming JSON Results
+
+Use structured output in downstream steps or external tools:
+
+```yaml
+name: Quality Gate
+on:
+  pull_request:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run tests with coverage
+        run: bun test --coverage
+
+      - name: Quality gate
+        uses: unentropy/quality-gate-action@v1
+        id: gate
+
+      - name: Access full result via fromJSON
+        run: |
+          echo "Status: ${{ fromJSON(steps.gate.outputs.quality-gate-results-json).qualityGate.status }}"
+          echo "Evaluated: ${{ fromJSON(steps.gate.outputs.quality-gate-results-json).qualityGate.summary.evaluatedMetrics }}"
+
+      - name: Upload results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-gate-results
+          path: ${{ steps.gate.outputs.quality-gate-results-path }}
 ```
 
 ## Required Permissions

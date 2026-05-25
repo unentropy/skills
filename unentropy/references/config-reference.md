@@ -387,6 +387,109 @@ Threshold value. Meaning depends on mode:
 - `min` / `max`: Absolute value (use `target`)
 - `delta-max-drop`: Percentage (e.g., `5` = 5% max increase, use `maxDropPercent`)
 
+## Report
+
+Configure the appearance and layout of generated HTML reports.
+
+### Report Theming
+
+Control the visual appearance with built-in palettes or custom overrides.
+
+#### `report.theme`
+
+**Type**: `string | object`  
+**Default**: `"lattice"`
+
+**Built-in palettes:**
+
+| Value        | Description                |
+| ------------ | -------------------------- |
+| `"lattice"`  | Cool blue accent (default) |
+| `"flux"`     | Warm amber accent          |
+| `"halftone"` | Purple accent              |
+| `"specimen"` | Green accent               |
+
+**Custom palette** (object with `dark` and/or `light` keys):
+
+```json
+{
+  "report": {
+    "theme": {
+      "dark": { "--accent": "#ff00ff" },
+      "light": { "--accent": "#aa00aa" }
+    }
+  }
+}
+```
+
+Available CSS variables: `--bg`, `--surface`, `--surface-card`, `--border`, `--border-soft`, `--text`, `--text-dim`, `--text-muted`, `--accent`, `--up`, `--down`, `--warn`.
+
+Each value must be a 7-character hex color. Omitted variables fall back to Lattice defaults.
+
+#### `report.mode`
+
+**Type**: `"auto" | "light" | "dark"`  
+**Default**: `"auto"`
+
+| Mode     | Behavior                                                         |
+| -------- | ---------------------------------------------------------------- |
+| `"auto"` | Emits both palettes; `prefers-color-scheme` selects at runtime   |
+| `"light"`| Locks to light palette; emits only light CSS variables           |
+| `"dark"` | Locks to dark palette; emits only dark CSS variables             |
+
+### Report Layout
+
+Organize metrics into named sections and combine related metrics on a single chart.
+
+#### `report.sections`
+
+**Type**: `SectionConfig[]`  
+**Required**: No
+
+Define named, visually separated groups of charts. When absent, the report uses a flat layout.
+
+```json
+{
+  "report": {
+    "sections": [
+      {
+        "name": "Code Size",
+        "description": "Source code metrics by language",
+        "charts": [
+          { "metrics": "typescript-loc" },
+          { "metrics": "javascript-loc" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### Section Fields
+
+| Field         | Type            | Required | Description                                    |
+| ------------- | --------------- | -------- | ---------------------------------------------- |
+| `name`        | string          | Yes      | Section header text (max 256 characters)       |
+| `description` | string          | No       | Subtitle shown below the header                  |
+| `charts`      | `ChartConfig[]` | Yes      | Charts to render, in display order               |
+
+#### Chart Configuration
+
+| Field     | Type                 | Required | Description                                                              |
+| --------- | -------------------- | -------- | ------------------------------------------------------------------------ |
+| `metrics` | `string \| string[]` | Yes      | Metric ID(s) to plot. Array plots multiple metrics on one chart.         |
+| `title`   | string               | No       | Custom chart title. Defaults to metric name(s) when omitted.             |
+
+### Validation Rules
+
+- Unknown `theme` string → warning logged, falls back to `"lattice"`
+- Custom theme with partial variables → missing variables filled from Lattice defaults
+- Invalid `mode` value → validation error at config load time
+- Invalid hex format in custom theme → validation error at config load time
+- Empty `sections` array → validation error
+- Unknown `metrics` references in charts → silently omitted from the report
+- Metrics not referenced in any chart → omitted from the report with no warning
+
 ## Complete Example
 
 ```json
@@ -442,6 +545,27 @@ Threshold value. Meaning depends on mode:
         "mode": "no-regression"
       }
     ]
+  },
+  "report": {
+    "theme": "specimen",
+    "mode": "auto",
+    "sections": [
+      {
+        "name": "Code Size",
+        "description": "Source code and build artifact metrics",
+        "charts": [
+          { "metrics": ["src-loc", "test-loc"], "title": "Lines of Code" },
+          { "metrics": "bundle", "title": "Production Bundle Size" }
+        ]
+      },
+      {
+        "name": "Quality",
+        "charts": [
+          { "metrics": "coverage" },
+          { "metrics": "api-endpoints" }
+        ]
+      }
+    ]
   }
 }
 ```
@@ -484,4 +608,32 @@ Provide a shell command that outputs the metric value
 Error in metric "test-coverage": missing required fields
 Required: type, command
 Found: type
+```
+
+### Empty Report Sections
+
+```
+Error: report.sections cannot be empty
+Remove the report block or define at least one section
+```
+
+### Empty Section Charts
+
+```
+Error: Section "Code Size" has no charts
+Each section must contain at least one chart
+```
+
+### Invalid Report Mode
+
+```
+Error: mode must be one of: auto, light, dark
+Found: "system"
+```
+
+### Invalid Theme Value
+
+```
+Error: theme values must be 7-character hex (e.g. #1c2230)
+Found: "#ff00f" at report.theme.dark.--accent
 ```

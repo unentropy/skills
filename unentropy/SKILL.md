@@ -1,7 +1,7 @@
 ---
 name: unentropy
 description: This skill should be used when the user asks to "configure unentropy", "set up unentropy metrics", "create unentropy.json", "set up quality gates", "configure unentropy storage", "add unentropy to CI", "unentropy validation", or when working with the unentropy.json configuration file, GitHub Actions workflows for unentropy, or unentropy metric collection.
-version: 0.1.0
+version: 0.2.0
 ---
 
 # Unentropy Skill
@@ -10,11 +10,12 @@ Configure unentropy.json to track code metrics in CI pipelines. Unentropy stores
 
 ## Core Concepts
 
-Unentropy operates through three layers:
+Unentropy operates through four layers:
 
 1. **Metrics**: Commands that output numeric or label values on every build
 2. **Storage**: Where the SQLite database lives (artifact, S3, or local)
 3. **Quality Gates**: Threshold rules that compare PR metrics against main branch baseline
+4. **Report**: HTML visualization of metrics with theming and optional sectioned layout
 
 ## Workflow: Initialize Project
 
@@ -234,6 +235,107 @@ Threshold modes:
 
 The quality gate passes only if all thresholds pass.
 
+## Workflow: Configure Report Appearance
+
+Set the visual theme and color mode for generated HTML reports.
+
+### Built-in Themes
+
+```json
+{
+  "report": {
+    "theme": "flux",
+    "mode": "auto"
+  }
+}
+```
+
+Available themes: `lattice` (default), `flux`, `halftone`, `specimen`.
+
+### Custom Palette
+
+Override individual colors to match branding:
+
+```json
+{
+  "report": {
+    "theme": {
+      "dark": { "--accent": "#ff00ff" },
+      "light": { "--accent": "#aa00aa" }
+    }
+  }
+}
+```
+
+Omitted variables fall back to Lattice defaults. Values must be 7-character hex colors.
+
+### Mode
+
+| Mode | Behavior |
+|------|----------|
+| `auto` | Respects system `prefers-color-scheme` (default) |
+| `dark` | Always uses the dark variant |
+| `light` | Always uses the light variant |
+
+## Workflow: Configure Report Layout
+
+Organize metrics into named sections and plot related metrics together.
+
+### Sections
+
+Group metrics under headers:
+
+```json
+{
+  "report": {
+    "sections": [
+      {
+        "name": "Code Size",
+        "description": "Source and build artifact metrics",
+        "charts": [
+          { "metrics": "typescript-loc" },
+          { "metrics": "bundle" }
+        ]
+      }
+    ]
+  }
+}
+```
+
+### Multi-Metric Charts
+
+Compare related metrics on one chart:
+
+```json
+{
+  "report": {
+    "sections": [
+      {
+        "name": "Refactoring",
+        "charts": [
+          {
+            "metrics": ["modern-classes", "legacy-classes"],
+            "title": "Modern vs Legacy"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Metrics with different units automatically receive dual Y-axes.
+
+### Custom Chart Titles
+
+Override auto-derived titles:
+
+```json
+{ "metrics": "bundle-size", "title": "Production Bundle Size" }
+```
+
+Omitting `report` entirely preserves the original flat layout (one chart per metric).
+
 ## Critical Rule: Validate JSON After Every Update
 
 **Always validate `unentropy.json` syntax immediately after creating or modifying the file.**
@@ -372,6 +474,7 @@ For detailed documentation, consult:
 - **`references/storage-guide.md`** — Artifact, S3, and local storage setup, provider examples (AWS, R2, DigitalOcean), data migration
 - **`references/cli-reference.md`** — All CLI commands: `init`, `test`, `preview`, `verify`, global options, and common workflows
 - **`references/actions-reference.md`** — GitHub Actions inputs/outputs for `track-metrics` and `quality-gate`
+- **`references/report-guide.md`** — Report theming, layout customization with sections and multi-metric charts, validation
 - **`references/getting-started.md`** — Full getting-started walkthrough including project type detection and workflow setup
 
 ### Example Configurations
